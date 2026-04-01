@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TICs Sesión 5 - Google Sheets</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --purple:       #7C3AED;
+  --purple-light: #8B5CF6;
+  --purple-bg:    #F5F3FF;
+  --sheets-green: #0F9D58;
+  --green-light:  #22C55E;
+  --green-bg:     #ECFDF5;
+  --cyan:         #06B6D4;
+  --blue:         #3B82F6;
+  --yellow:       #F59E0B;
+  --pink:         #EC4899;
+  --red:          #EF4444;
+  --gray-50:  #F9FAFB;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+  --gray-400: #9CA3AF;
+  --gray-600: #4B5563;
+  --gray-700: #374151;
+  --gray-800: #1F2937;
+  --gray-900: #111827;
+  --font:   'Plus Jakarta Sans', sans-serif;
+  --radius: 16px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+  --shadow:    0 4px 16px rgba(0,0,0,.09);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,.13);
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); color: var(--gray-900); background:#fff; overflow-x:hidden; }
+a { text-decoration:none; color:inherit; }
+
+/* ===== NAVBAR ===== */
+.navbar {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--gray-200);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 2rem; height:60px;
+  transition:box-shadow .3s;
+}
+.navbar-brand {
+  display:flex; align-items:center; gap:9px;
+  font-weight:700; font-size:15px; color:var(--gray-900);
+}
+.navbar-links {
+  display:flex; align-items:center; gap:28px; list-style:none;
+}
+.navbar-links a {
+  font-size:14px; font-weight:500; color:var(--gray-600);
+  transition:color .2s;
+}
+.navbar-links a:hover { color:var(--gray-900); }
+.btn-nav {
+  background:var(--sheets-green); color:#fff;
+  border:none; border-radius:50px; padding:9px 22px;
+  font-size:14px; font-weight:600; cursor:pointer;
+  font-family:var(--font); transition:background .2s, transform .15s;
+  white-space:nowrap;
+}
+.btn-nav:hover { background:#0b8a4d; transform:translateY(-1px); }
+.hamburger { display:none; background:none; border:none; cursor:pointer; padding:4px; }
+.hamburger span { display:block; width:22px; height:2px; background:var(--gray-800); margin:5px 0; border-radius:2px; transition:.3s; }
+
+/* ===== HERO ===== */
+#inicio {
+  min-height:100vh;
+  background:linear-gradient(135deg, #D1FAE5 0%, #ECFDF5 18%, #F0FDF4 40%, #FFFBEB 75%, #FFF7ED 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:100px 2rem 60px;
+  position:relative; overflow:hidden;
+}
+#inicio::before {
+  content:''; position:absolute; top:-100px; right:-80px;
+  width:480px; height:480px;
+  background:radial-gradient(circle, rgba(15,157,88,.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+#inicio::after {
+  content:''; position:absolute; bottom:-80px; left:-60px;
+  width:420px; height:420px;
+  background:radial-gradient(circle, rgba(124,58,237,.07) 0%, transparent 70%);
+  pointer-events:none;
+}
+.badge {
+  display:inline-flex; align-items:center; gap:7px;
+  background:rgba(255,255,255,.85); border:1px solid var(--gray-200);
+  border-radius:50px; padding:6px 16px;
+  font-size:12px; font-weight:600; letter-spacing:.05em; color:var(--gray-600);
+  margin-bottom:32px; box-shadow:var(--shadow-sm);
+}
+.badge-dot {
+  width:7px; height:7px; border-radius:50%; background:var(--sheets-green);
+  animation:pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.3)}
+}
+.hero-title {
+  font-size:clamp(2.8rem,6vw,5.5rem); font-weight:800; line-height:1.1; margin-bottom:24px;
+}
+.hero-title .line1 { display:block; color:var(--gray-900); }
+.hero-title .line2 {
+  display:block;
+  background:linear-gradient(90deg, var(--sheets-green) 0%, var(--purple) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.hero-title .line3 { display:block; color:var(--purple); }
+.hero-subtitle {
+  font-size:clamp(1rem,2vw,1.2rem); color:var(--gray-600);
+  max-width:540px; line-height:1.75; margin-bottom:40px;
+}
+.btn-hero {
+  background:var(--sheets-green); color:#fff; border:none;
+  border-radius:50px; padding:18px 44px;
+  font-size:16px; font-weight:700; cursor:pointer;
+  font-family:var(--font); transition:all .25s;
+  box-shadow:0 6px 24px rgba(15,157,88,.35);
+  display:inline-flex; align-items:center; gap:9px;
+}
+.btn-hero:hover {
+  background:#0b8a4d; transform:translateY(-3px);
+  box-shadow:0 12px 32px rgba(15,157,88,.4);
+}
+.btn-hero svg { transition:transform .2s; }
+.btn-hero:hover svg { transform:translateX(3px); }
+
+/* ===== SECTION BASE ===== */
+section { padding:90px 2rem; }
+.section-header { text-align:center; margin-bottom:56px; }
+.section-header h2 {
+  font-size:clamp(2rem,4vw,3rem); font-weight:800;
+  color:var(--gray-900); margin-bottom:12px;
+}
+.section-header p {
+  font-size:1.05rem; color:var(--gray-600);
+  max-width:580px; margin:0 auto; line-height:1.65;
+}
+.container { max-width:1100px; margin:0 auto; }
+
+/* ===== CONCEPTO CARDS ===== */
+#concepto { background:#fff; }
+.cards-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.card {
+  background:#fff; border:1.5px solid var(--gray-200);
+  border-radius:var(--radius); padding:28px 24px;
+  transition:transform .25s, box-shadow .25s;
+}
+.card:hover { transform:translateY(-6px); box-shadow:var(--shadow-lg); }
+.card-icon {
+  width:52px; height:52px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:20px;
+}
+.icon-green  { background:#ECFDF5; }
+.icon-purple { background:#F5F3FF; }
+.icon-blue   { background:#EFF6FF; }
+.icon-yellow { background:#FFFBEB; }
+.card h3 { font-size:1rem; font-weight:700; color:var(--gray-900); margin-bottom:10px; }
+.card p  { font-size:.9rem; color:var(--gray-600); line-height:1.6; }
+
+/* ===== INTERFAZ: SHEETS MOCKUP ===== */
+#interfaz { background:var(--gray-50); }
+.browser-mockup {
+  max-width:860px; margin:0 auto;
+  background:#fff; border-radius:14px;
+  box-shadow:var(--shadow-lg); overflow:hidden;
+  border:1px solid var(--gray-200); position:relative;
+}
+.browser-bar {
+  background:var(--gray-100); padding:10px 16px;
+  display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid var(--gray-200);
+}
+.browser-dots { display:flex; gap:7px; }
+.dot-r { width:12px; height:12px; border-radius:50%; background:#FF5F57; }
+.dot-y { width:12px; height:12px; border-radius:50%; background:#FFBD2E; }
+.dot-g { width:12px; height:12px; border-radius:50%; background:#28C840; }
+.browser-url {
+  flex:1; background:#fff; border:1px solid var(--gray-200);
+  border-radius:6px; padding:5px 12px; font-size:12px; color:var(--gray-600);
+  display:flex; align-items:center; gap:6px;
+}
+/* Sheets specific header */
+.sheets-header {
+  padding:10px 16px; border-bottom:1px solid var(--gray-200);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  flex-wrap:wrap;
+}
+.sheets-title-area { display:flex; flex-direction:column; gap:3px; }
+.sheets-title-row { display:flex; align-items:center; gap:10px; }
+.sheets-icon {
+  width:32px; height:32px; background:var(--sheets-green); border-radius:6px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.sheets-name { font-size:15px; font-weight:600; color:var(--gray-900); }
+.sheets-saved {
+  font-size:11px; color:var(--gray-400);
+  display:flex; align-items:center; gap:4px;
+}
+.sheets-menu { display:flex; gap:16px; padding-left:42px; margin-top:1px; }
+.sheets-menu span { font-size:13px; color:var(--gray-600); cursor:pointer; transition:color .15s; }
+.sheets-menu span:hover { color:var(--gray-900); }
+.sheets-actions { display:flex; gap:10px; align-items:center; }
+/* Toolbar */
+.sheets-toolbar {
+  padding:6px 14px; border-bottom:1px solid var(--gray-200);
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap; background:#fff;
+}
+.tb-group { display:flex; gap:2px; padding:0 6px; border-right:1px solid var(--gray-200); }
+.tb-btn {
+  width:26px; height:26px; border:none; background:none; border-radius:4px;
+  cursor:pointer; font-size:12px; font-weight:700; color:var(--gray-700);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font);
+  transition:background .15s;
+}
+.tb-btn:hover { background:var(--gray-100); }
+.tb-sep { width:1px; background:var(--gray-200); height:18px; margin:0 4px; }
+.tb-color {
+  width:22px; height:22px; border:none; cursor:pointer; border-radius:3px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+}
+.color-strip { width:16px; height:3px; border-radius:1px; }
+/* Formula bar */
+.formula-bar {
+  display:flex; align-items:center; border-bottom:1px solid var(--gray-200);
+  background:#fff;
+}
+.cell-ref {
+  min-width:64px; padding:6px 10px; font-size:12px; font-weight:600; color:var(--gray-700);
+  border-right:1px solid var(--gray-200); text-align:center;
+}
+.formula-fx {
+  padding:6px 10px; font-size:13px; color:var(--gray-400);
+  border-right:1px solid var(--gray-200); font-style:italic; font-weight:600;
+}
+.formula-input {
+  flex:1; padding:6px 12px; font-size:12.5px; color:var(--gray-700);
+  font-family:'Courier New', monospace;
+}
+/* Grid */
+.sheets-grid-wrap { overflow-x:auto; background:#fff; }
+.sheets-grid { border-collapse:collapse; min-width:100%; font-size:12px; }
+.sheets-grid th {
+  background:var(--gray-50); border:1px solid var(--gray-200);
+  padding:5px 12px; font-weight:600; color:var(--gray-600);
+  text-align:center; min-width:36px; font-size:11.5px; user-select:none;
+}
+.sheets-grid th.col-hdr { min-width:110px; }
+.sheets-grid th.row-hdr { min-width:36px; max-width:36px; }
+.sheets-grid td {
+  border:1px solid var(--gray-200); padding:5px 10px;
+  color:var(--gray-700); white-space:nowrap; font-size:12px;
+}
+.sheets-grid tr:hover td { background:rgba(15,157,88,.03); }
+.cell-header-row td { background:var(--gray-50); font-weight:700; color:var(--gray-800); }
+.cell-active { background:#E8F0FE !important; border:2px solid #1A73E8 !important; font-weight:700; color:var(--gray-900) !important; }
+.cell-formula { color:var(--sheets-green) !important; font-weight:700; }
+.cell-green  { background:#ECFDF5 !important; color:#166534; font-weight:600; }
+.cell-yellow { background:#FEF9C3 !important; color:#854D0E; font-weight:600; }
+.cell-red    { background:#FEF2F2 !important; color:#991B1B; }
+.cell-bold   { font-weight:700; }
+.cell-right  { text-align:right; }
+.cell-center { text-align:center; }
+/* Sheet tabs at bottom */
+.sheets-tabs {
+  display:flex; align-items:center; gap:0;
+  border-top:1px solid var(--gray-200); background:var(--gray-50); padding:0 8px;
+}
+.sheets-tab {
+  padding:8px 18px; font-size:12px; font-weight:600; cursor:pointer;
+  border-right:1px solid var(--gray-200); color:var(--gray-600);
+  transition:background .15s, color .15s;
+}
+.sheets-tab:hover { background:#fff; color:var(--gray-900); }
+.sheets-tab.active {
+  background:#fff; color:var(--sheets-green); border-top:2px solid var(--sheets-green);
+  margin-top:-1px;
+}
+.sheets-tab-add {
+  padding:6px 12px; font-size:16px; color:var(--gray-400); cursor:pointer;
+  transition:color .15s;
+}
+.sheets-tab-add:hover { color:var(--gray-800); }
+
+/* Hotspots */
+.hotspot {
+  width:18px; height:18px; border-radius:50%;
+  background:var(--sheets-green); border:3px solid #fff;
+  box-shadow:0 0 0 3px rgba(15,157,88,.25), var(--shadow);
+  cursor:pointer; z-index:10; transition:transform .2s;
+  animation:pulse-hot 2.5s infinite; flex-shrink:0;
+  display:inline-block; position:relative; vertical-align:middle;
+}
+.hotspot:hover { transform:scale(1.3); }
+@keyframes pulse-hot {
+  0%,100%{box-shadow:0 0 0 3px rgba(15,157,88,.25)}
+  50%{box-shadow:0 0 0 8px rgba(15,157,88,.08)}
+}
+.hotspot-abs { position:absolute; }
+.hotspot-tooltip {
+  position:absolute; background:var(--gray-900); color:#fff;
+  border-radius:10px; padding:10px 14px; font-size:12px; font-weight:500;
+  z-index:30; pointer-events:none; white-space:normal; max-width:210px;
+  opacity:0; transform:translateY(4px); transition:all .2s;
+  box-shadow:var(--shadow-lg);
+}
+.hotspot-tooltip.below { top:24px; }
+.hotspot-tooltip.above { bottom:24px; }
+.hotspot-tooltip.right { left:0; }
+.hotspot-tooltip.left  { right:0; }
+.hotspot:hover .hotspot-tooltip,
+.hotspot.active .hotspot-tooltip { opacity:1; transform:translateY(0); }
+
+/* ===== COLABORACIÓN ===== */
+#colaboracion { background:#fff; }
+.colab-grid { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
+.colab-text h2 { font-size:clamp(2rem,4vw,2.8rem); font-weight:800; margin-bottom:20px; }
+.colab-text p  { font-size:1rem; color:var(--gray-600); line-height:1.75; margin-bottom:28px; }
+.cursors-list  { list-style:none; display:flex; flex-direction:column; gap:14px; }
+.cursor-item   { display:flex; align-items:center; gap:12px; font-size:.95rem; font-weight:500; color:var(--gray-800); }
+.cursor-dot    { width:14px; height:14px; border-radius:50%; flex-shrink:0; }
+/* Mini sheets for colab demo */
+.colab-sheet {
+  background:#fff; border:1.5px solid var(--gray-200);
+  border-radius:14px; overflow:hidden; box-shadow:var(--shadow);
+}
+.colab-sheet-header {
+  background:var(--gray-50); padding:10px 14px; border-bottom:1px solid var(--gray-200);
+  display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--gray-700);
+}
+.colab-grid-tbl { width:100%; border-collapse:collapse; font-size:12px; }
+.colab-grid-tbl th {
+  background:var(--gray-50); border:1px solid var(--gray-200);
+  padding:4px 8px; font-weight:600; color:var(--gray-500); text-align:center; font-size:11px;
+}
+.colab-grid-tbl td {
+  border:1px solid var(--gray-200); padding:5px 10px; color:var(--gray-700); position:relative;
+}
+.cell-sel-pink   { background:rgba(236,72,153,.12) !important; border-color:rgba(236,72,153,.4) !important; }
+.cell-sel-blue   { background:rgba(59,130,246,.12) !important; border-color:rgba(59,130,246,.4) !important; }
+.cell-sel-green2 { background:rgba(15,157,88,.12)  !important; border-color:rgba(15,157,88,.5)  !important; }
+.cell-cursor {
+  position:absolute; top:0; right:0;
+  font-size:9px; font-weight:700; color:#fff;
+  padding:1px 5px; border-radius:0 0 0 4px; white-space:nowrap;
+}
+.colab-comment {
+  position:absolute; right:-16px; top:10px;
+  background:#fff; border:1px solid var(--gray-200);
+  border-radius:12px; padding:12px 14px; width:200px;
+  box-shadow:var(--shadow-lg); font-size:12px; z-index:10;
+}
+.cc-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.cc-avatar {
+  width:22px; height:22px; border-radius:50%; background:var(--blue);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; color:#fff;
+}
+.cc-author { font-weight:700; font-size:12px; }
+.cc-time   { font-size:11px; color:var(--gray-400); margin-left:auto; }
+.cc-text   { font-size:12px; color:var(--gray-700); line-height:1.5; margin-bottom:8px; }
+.cc-actions { display:flex; gap:10px; }
+.cc-btn {
+  font-size:11px; font-weight:600; cursor:pointer; background:none;
+  border:none; font-family:var(--font); padding:3px 0; color:var(--gray-600);
+}
+.cc-btn.resolve { display:flex; align-items:center; gap:4px; color:var(--green-light); }
+
+/* ===== HERRAMIENTAS TABS ===== */
+#herramientas { background:var(--gray-50); }
+.tabs-nav {
+  display:flex; background:#fff; border:1.5px solid var(--gray-200);
+  border-radius:50px; padding:6px;
+  max-width:580px; margin:0 auto 36px;
+}
+.tab-btn {
+  flex:1; padding:11px 18px; border:none; background:none;
+  border-radius:50px; font-size:14px; font-weight:600;
+  color:var(--gray-600); cursor:pointer; transition:all .2s;
+  font-family:var(--font);
+}
+.tab-btn.active {
+  background:var(--sheets-green); color:#fff;
+  box-shadow:0 4px 12px rgba(15,157,88,.3);
+}
+.tab-content { display:none; }
+.tab-content.active { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.tab-content.single { display:none; }
+.tab-content.single.active { display:block; }
+.tool-card {
+  background:#fff; border:1.5px solid var(--gray-200);
+  border-radius:var(--radius); padding:28px 24px;
+}
+.tool-card-title {
+  display:flex; align-items:center; gap:10px;
+  font-size:1.05rem; font-weight:700; color:var(--gray-900); margin-bottom:14px;
+}
+.tool-card-title .ico { font-size:18px; color:var(--sheets-green); }
+.tool-card p { font-size:.88rem; color:var(--gray-600); line-height:1.65; margin-bottom:16px; }
+.checklist { list-style:none; display:flex; flex-direction:column; gap:9px; }
+.checklist li {
+  display:flex; align-items:flex-start; gap:8px;
+  font-size:.88rem; color:var(--gray-700); line-height:1.5;
+}
+.check-icon {
+  width:16px; height:16px; border-radius:50%; background:var(--green-light);
+  flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-top:2px;
+}
+.check-icon svg { width:10px; height:10px; }
+/* Formula preview card */
+.formula-preview {
+  background:#fff; border:1.5px solid var(--gray-200);
+  border-radius:var(--radius); padding:24px; display:flex; flex-direction:column; gap:12px;
+}
+.formula-chip {
+  background:var(--gray-50); border:1px solid var(--gray-200);
+  border-radius:8px; padding:10px 14px; font-family:'Courier New', monospace;
+  font-size:13px;
+}
+.formula-chip .fn  { color:var(--sheets-green); font-weight:700; }
+.formula-chip .arg { color:var(--blue); }
+.formula-chip .res { color:var(--gray-600); font-size:11px; margin-top:4px; }
+/* Charts tab */
+.chart-types { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.chart-type {
+  background:var(--gray-50); border:1.5px solid var(--gray-200);
+  border-radius:12px; padding:16px 12px; text-align:center;
+  cursor:pointer; transition:all .2s;
+}
+.chart-type:hover { border-color:var(--sheets-green); background:#ECFDF5; transform:translateY(-2px); }
+.chart-icon { font-size:28px; margin-bottom:8px; }
+.chart-name { font-size:12px; font-weight:600; color:var(--gray-700); }
+/* Mini bar chart for preview */
+.mini-chart { display:flex; align-items:flex-end; gap:8px; height:80px; padding:0 8px; margin-top:12px; }
+.bar-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
+.bar { border-radius:4px 4px 0 0; width:100%; transition:height .4s ease; }
+.bar-label { font-size:9.5px; color:var(--gray-500); white-space:nowrap; }
+/* Formato tab */
+.formato-examples { display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+.formato-row {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px; border-radius:8px; border:1px solid var(--gray-200);
+  font-size:13px;
+}
+.formato-swatch { width:16px; height:16px; border-radius:4px; flex-shrink:0; }
+/* Datos tab */
+.datos-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:12px; }
+.datos-card {
+  background:var(--gray-50); border:1.5px solid var(--gray-200);
+  border-radius:10px; padding:14px; cursor:pointer; transition:all .2s;
+}
+.datos-card:hover { border-color:var(--sheets-green); background:#ECFDF5; }
+.datos-card-icon { font-size:20px; margin-bottom:6px; }
+.datos-card-name { font-size:12px; font-weight:700; color:var(--gray-800); margin-bottom:3px; }
+.datos-card-desc { font-size:11px; color:var(--gray-500); line-height:1.4; }
+
+/* ===== ACTIVIDAD ===== */
+#actividad { background:#ECFDF5; }
+.badge-actividad {
+  display:inline-flex; align-items:center;
+  background:var(--sheets-green); color:#fff;
+  font-size:11px; font-weight:700; letter-spacing:.08em;
+  border-radius:50px; padding:6px 18px; margin-bottom:24px;
+}
+.actividad-grid { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; }
+.steps-title { font-size:1.2rem; font-weight:700; color:var(--gray-900); margin-bottom:20px; }
+.steps-list { display:flex; flex-direction:column; gap:13px; }
+.step-item {
+  display:flex; align-items:center; gap:16px;
+  background:#fff; border-radius:14px; padding:17px 20px;
+  box-shadow:var(--shadow-sm); cursor:pointer;
+  transition:box-shadow .2s, transform .2s, border-color .2s;
+  border:1.5px solid transparent;
+}
+.step-item:hover { box-shadow:var(--shadow); border-color:var(--sheets-green); transform:translateX(4px); }
+.step-num {
+  width:36px; height:36px; border-radius:50%; background:var(--sheets-green);
+  color:#fff; font-size:15px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.step-text { font-size:.9rem; color:var(--gray-700); line-height:1.5; flex:1; }
+.step-arrow { color:var(--gray-400); flex-shrink:0; }
+/* Result preview */
+.result-title { display:flex; align-items:center; gap:8px; font-size:1.05rem; font-weight:700; color:var(--gray-900); margin-bottom:14px; }
+.result-title .check { color:var(--sheets-green); font-size:20px; }
+.doc-preview {
+  background:#fff; border-radius:14px; overflow:hidden;
+  box-shadow:var(--shadow-lg); border:1px solid var(--gray-200);
+}
+.doc-preview-bar {
+  background:var(--gray-100); padding:10px 14px;
+  display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--gray-200);
+}
+.preview-grid { border-collapse:collapse; width:100%; font-size:11.5px; }
+.preview-grid th {
+  background:var(--gray-50); border:1px solid var(--gray-200);
+  padding:4px 8px; font-weight:600; color:var(--gray-500); text-align:center; font-size:10.5px;
+}
+.preview-grid td { border:1px solid var(--gray-200); padding:4px 8px; color:var(--gray-700); }
+.preview-grid tr.header-row td { background:var(--sheets-green); color:#fff; font-weight:700; }
+.preview-grid .total-row td { background:var(--gray-50); font-weight:700; }
+.preview-grid .formula-cell { color:var(--sheets-green); font-style:italic; font-size:11px; }
+
+/* ===== RETO ===== */
+#reto { background:#fff; }
+.reto-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-bottom:60px; }
+.reto-card {
+  background:#fff; border:1.5px solid var(--gray-200); border-radius:var(--radius);
+  padding:28px 24px; display:flex; flex-direction:column; gap:14px;
+  transition:transform .25s, box-shadow .25s;
+}
+.reto-card:hover { transform:translateY(-6px); box-shadow:var(--shadow-lg); }
+.reto-icon {
+  width:50px; height:50px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center; font-size:22px;
+}
+.reto-icon.green  { background:#ECFDF5; }
+.reto-icon.purple { background:#F5F3FF; }
+.reto-icon.blue   { background:#EFF6FF; }
+.reto-level { font-size:11px; font-weight:700; letter-spacing:.08em; }
+.reto-level.green  { color:var(--sheets-green); }
+.reto-level.purple { color:var(--purple); }
+.reto-level.blue   { color:var(--blue); }
+.reto-card h3 { font-size:1.25rem; font-weight:800; color:var(--gray-900); }
+.reto-card p  { font-size:.88rem; color:var(--gray-600); line-height:1.65; flex:1; }
+.btn-reto {
+  width:100%; padding:14px; border:none; border-radius:10px;
+  font-size:14px; font-weight:700; cursor:pointer; font-family:var(--font);
+  transition:all .2s; margin-top:auto;
+}
+.btn-reto.green  { background:var(--sheets-green); color:#fff; }
+.btn-reto.green:hover  { background:#0b8a4d; transform:translateY(-2px); }
+.btn-reto.purple { background:var(--purple); color:#fff; }
+.btn-reto.purple:hover { background:#6D28D9; transform:translateY(-2px); }
+.btn-reto.blue   { background:var(--blue); color:#fff; }
+.btn-reto.blue:hover   { background:#2563EB; transform:translateY(-2px); }
+.felicidades {
+  text-align:center; padding:48px 24px;
+  border-top:1.5px solid var(--gray-100);
+}
+.felicidades h3 { font-size:clamp(1.5rem,3vw,2.2rem); font-weight:800; color:var(--gray-900); margin-bottom:12px; }
+.felicidades p  { font-size:1rem; color:var(--gray-600); max-width:520px; margin:0 auto; line-height:1.7; }
+
+/* ===== RESULTADO ===== */
+#resultado { background:var(--gray-50); }
+.badge-resultado {
+  display:inline-flex; align-items:center;
+  background:var(--sheets-green); color:#fff;
+  font-size:11px; font-weight:700; letter-spacing:.08em;
+  border-radius:50px; padding:6px 18px; margin-bottom:24px;
+}
+.resultado-doc {
+  max-width:900px; margin:0 auto;
+  background:#fff; border-radius:14px; overflow:hidden;
+  box-shadow:var(--shadow-lg); border:1px solid var(--gray-200);
+}
+.resultado-bar {
+  background:var(--gray-100); padding:10px 16px;
+  display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--gray-200);
+}
+.resultado-menubar {
+  background:#fff; border-bottom:1px solid var(--gray-200);
+  padding:8px 16px; font-size:12px; color:var(--gray-600);
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+}
+.badge-cond {
+  background:var(--sheets-green); color:#fff;
+  font-size:10px; font-weight:700; padding:3px 10px;
+  border-radius:4px; margin-left:6px;
+}
+.editores { display:flex; gap:4px; margin-left:auto; align-items:center; }
+.editor-avatar {
+  width:22px; height:22px; border-radius:50%; color:#fff;
+  font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center;
+  border:2px solid #fff; margin-left:-6px;
+}
+.editores-text { font-size:11px; color:var(--gray-500); margin-left:6px; }
+/* Full resultado grid */
+.resultado-body { padding:0; overflow-x:auto; position:relative; }
+.resultado-grid-tbl { width:100%; border-collapse:collapse; font-size:12px; min-width:620px; }
+.resultado-grid-tbl th {
+  background:var(--gray-50); border:1px solid var(--gray-200);
+  padding:5px 10px; font-weight:600; color:var(--gray-500);
+  text-align:center; font-size:11px; user-select:none;
+}
+.resultado-grid-tbl td { border:1px solid var(--gray-200); padding:6px 10px; color:var(--gray-700); }
+.rg-header td { background:var(--sheets-green) !important; color:#fff !important; font-weight:700; }
+.rg-total  td { background:var(--gray-100) !important; font-weight:700; color:var(--gray-800); }
+.rg-green  td.nota-cell { background:#ECFDF5 !important; color:#166534 !important; font-weight:700; }
+.rg-yellow td.nota-cell { background:#FEF9C3 !important; color:#854D0E !important; font-weight:700; }
+.rg-red    td.nota-cell { background:#FEF2F2 !important; color:#991B1B !important; }
+.resultado-grid-tbl td.formula-col { color:var(--sheets-green); font-style:italic; font-size:11px; }
+/* SVG Chart inside result */
+.chart-section { padding:20px 24px; border-top:1px solid var(--gray-200); }
+.chart-title { font-size:13px; font-weight:700; color:var(--gray-800); margin-bottom:12px; }
+/* Reto boxes */
+.reto-box {
+  border:1.5px dashed; border-radius:10px; padding:14px 16px; margin:0 16px 16px;
+}
+.reto-box.green  { border-color:var(--sheets-green); background:#ECFDF5; }
+.reto-box.purple { border-color:var(--purple);        background:#F5F3FF; }
+.reto-box.blue   { border-color:var(--blue);           background:#EFF6FF; }
+.reto-box-title  { font-weight:700; font-size:11px; letter-spacing:.06em; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+.reto-box.green  .reto-box-title { color:var(--sheets-green); }
+.reto-box.purple .reto-box-title { color:var(--purple); }
+.reto-box.blue   .reto-box-title { color:var(--blue); }
+/* Version history in resultado */
+.version-list { display:flex; flex-direction:column; gap:5px; padding:4px 0; }
+.version-item { display:flex; gap:10px; font-size:11.5px; align-items:baseline; }
+.version-time { color:var(--gray-400); font-size:10.5px; flex-shrink:0; width:64px; }
+/* Legend */
+.legend-bar {
+  display:flex; align-items:center; justify-content:center; gap:28px;
+  padding:16px 20px; border-top:1px solid var(--gray-200);
+  background:#fff; flex-wrap:wrap;
+}
+.legend-item { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--gray-600); font-weight:500; }
+.legend-dot  { width:10px; height:10px; border-radius:3px; }
+/* Comment bubble in resultado */
+.suggestion-bubble {
+  position:absolute; right:-8px; top:24px; z-index:20;
+  background:#fff; border:1px solid var(--gray-200); border-radius:10px;
+  padding:12px 14px; width:185px; box-shadow:var(--shadow-lg); font-size:11.5px;
+}
+.sb-header  { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.sb-avatar  { width:20px; height:20px; border-radius:50%; background:#16A34A; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:#fff; }
+.sb-name    { font-weight:700; font-size:11px; color:var(--gray-900); }
+.sb-text    { font-size:11px; color:var(--gray-700); margin-bottom:8px; line-height:1.5; }
+.sb-actions { display:flex; gap:6px; }
+.sb-btn-accept { background:var(--sheets-green); color:#fff; border:none; border-radius:4px; padding:4px 10px; font-size:10px; font-weight:600; cursor:pointer; font-family:var(--font); }
+.sb-btn-reject { background:#fff; color:var(--gray-600); border:1px solid var(--gray-200); border-radius:4px; padding:4px 10px; font-size:10px; font-weight:600; cursor:pointer; font-family:var(--font); }
+
+/* ===== FOOTER ===== */
+footer {
+  background:var(--gray-900); color:rgba(255,255,255,.7);
+  text-align:center; padding:28px 24px; font-size:13px;
+}
+
+/* ===== ANIMATIONS ===== */
+.fade-up {
+  opacity:0; transform:translateY(30px);
+  transition:opacity .6s ease, transform .6s ease;
+}
+.fade-up.visible { opacity:1; transform:translateY(0); }
+
+/* ===== SHARE / COMMENT BUTTONS (shared) ===== */
+.btn-comment-docs {
+  background:#fff; border:1px solid var(--gray-200); border-radius:8px;
+  padding:7px 14px; font-size:13px; font-weight:500; cursor:pointer;
+  display:flex; align-items:center; gap:6px; color:var(--gray-700);
+  font-family:var(--font); transition:background .2s;
+}
+.btn-comment-docs:hover { background:var(--gray-50); }
+.btn-share-docs {
+  background:var(--sheets-green); color:#fff; border:none; border-radius:8px;
+  padding:7px 16px; font-size:13px; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; gap:6px; font-family:var(--font); transition:background .2s;
+}
+.btn-share-docs:hover { background:#0b8a4d; }
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px) {
+  .cards-grid    { grid-template-columns:repeat(2,1fr); }
+  .colab-grid    { grid-template-columns:1fr; gap:40px; }
+  .actividad-grid{ grid-template-columns:1fr; }
+  .reto-grid     { grid-template-columns:1fr; max-width:380px; margin-left:auto; margin-right:auto; }
+  .tab-content.active { grid-template-columns:1fr; }
+  .chart-types   { grid-template-columns:repeat(2,1fr); }
+  .colab-comment, .suggestion-bubble { display:none; }
+  .navbar-links  { display:none; }
+  .navbar-links.open {
+    display:flex; flex-direction:column; position:fixed;
+    top:60px; left:0; right:0; background:#fff;
+    border-bottom:1px solid var(--gray-200); padding:20px; gap:16px;
+  }
+  .hamburger { display:block; }
+}
+@media(max-width:600px) {
+  section { padding:60px 1.2rem; }
+  .cards-grid { grid-template-columns:1fr; }
+  .tabs-nav   { flex-wrap:wrap; border-radius:var(--radius); }
+  .tab-btn    { border-radius:10px; padding:10px 12px; font-size:12.5px; }
+  .navbar     { padding:0 1.2rem; }
+  .legend-bar { gap:14px; }
+  .datos-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="mainNav">
+  <a href="#inicio" class="navbar-brand">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="8" fill="#0F9D58"/>
+      <rect x="6" y="6" width="16" height="16" rx="2" stroke="#fff" stroke-width="1.5"/>
+      <path d="M6 11h16M6 16h16M11 6v16" stroke="#fff" stroke-width="1.5"/>
+    </svg>
+    <span>SENA TICs</span>
+  </a>
+  <ul class="navbar-links" id="navLinks">
+    <li><a href="#inicio">Inicio</a></li>
+    <li><a href="#concepto">Concepto</a></li>
+    <li><a href="#interfaz">Interfaz</a></li>
+    <li><a href="#colaboracion">Colaboración</a></li>
+    <li><a href="#herramientas">Herramientas</a></li>
+    <li><a href="#actividad">Actividad</a></li>
+    <li><a href="#reto">Reto</a></li>
+  </ul>
+  <button class="btn-nav" onclick="scrollTo('#actividad')">Ir a la Actividad</button>
+  <button class="hamburger" id="hamburger" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section id="inicio">
+  <div class="badge"><span class="badge-dot"></span> SESIÓN 5 | MEDIA TÉCNICA SENA</div>
+  <h1 class="hero-title">
+    <span class="line1">Google Sheets:</span>
+    <span class="line2">El Arte de Organizar</span>
+    <span class="line3">y Analizar Datos</span>
+  </h1>
+  <p class="hero-subtitle">Convierte números en decisiones. Aprende a estructurar, calcular y visualizar información en equipo, en tiempo real y desde cualquier lugar.</p>
+  <button class="btn-hero" onclick="scrollTo('#concepto')">
+    Comenzar Aventura
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</section>
+
+<!-- ===== CONCEPTO ===== -->
+<section id="concepto">
+  <div class="container">
+    <div class="section-header fade-up">
+      <h2>¿Qué es Google Sheets?</h2>
+      <p>Más que una hoja de cálculo, es tu laboratorio de datos colaborativo en la nube.</p>
+    </div>
+    <div class="cards-grid fade-up">
+      <div class="card">
+        <div class="card-icon icon-green">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+            <rect x="4" y="4" width="18" height="18" rx="2" stroke="#0F9D58" stroke-width="2"/>
+            <path d="M4 10h18M4 16h18M10 4v18" stroke="#0F9D58" stroke-width="2"/>
+          </svg>
+        </div>
+        <h3>Fórmulas inteligentes</h3>
+        <p>Calcula automáticamente sumas, promedios y condiciones con simples funciones. Tus datos trabajan por ti.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon icon-purple">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+            <path d="M4 20 L8 12 L12 15 L16 8 L20 11 L22 6" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M4 20 L8 12 L12 15 L16 8 L20 11 L22 6 L22 20 Z" fill="rgba(124,58,237,.1)"/>
+          </svg>
+        </div>
+        <h3>Gráficos al instante</h3>
+        <p>Convierte filas y columnas en gráficos de barras, líneas y torta con un solo clic.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon icon-blue">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+            <circle cx="10" cy="10" r="3.5" stroke="#3B82F6" stroke-width="2"/>
+            <circle cx="18" cy="10" r="3.5" stroke="#3B82F6" stroke-width="2"/>
+            <path d="M4 20c0-3.3 2.7-6 6-6M12 20c0-3.3 2.7-6 6-6" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Trabajo en equipo</h3>
+        <p>Varios estudiantes editan la misma hoja al mismo tiempo. Sin reenvíos, sin versiones perdidas.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon icon-yellow">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+            <path d="M5 8h16M5 13h10M5 18h8" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="19" cy="16" r="4" stroke="#F59E0B" stroke-width="2"/>
+            <path d="M19 14v2l1.5 1.5" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Formato condicional</h3>
+        <p>Colorea celdas automáticamente según su valor. Identifica patrones de un vistazo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== INTERFAZ ===== -->
+<section id="interfaz">
+  <div class="container">
+    <div class="section-header fade-up">
+      <h2>Conoce tu Herramienta</h2>
+      <p>Explora la interfaz de Sheets. Haz clic en los puntos verdes para descubrir cada elemento.</p>
+    </div>
+    <div class="browser-mockup fade-up">
+      <!-- Browser bar -->
+      <div class="browser-bar">
+        <div class="browser-dots"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div></div>
+        <div class="browser-url">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#9CA3AF" stroke-width="1.2"/></svg>
+          docs.google.com/spreadsheets/d/...
+        </div>
+      </div>
+      <!-- Sheets header -->
+      <div class="sheets-header">
+        <div class="sheets-title-area">
+          <div class="sheets-title-row">
+            <div class="sheets-icon">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="2" y="2" width="14" height="14" rx="1.5" stroke="#fff" stroke-width="1.2"/>
+                <path d="M2 7h14M2 12h14M7 2v14" stroke="#fff" stroke-width="1.2"/>
+              </svg>
+            </div>
+            <span class="sheets-name">Inventario Digital del Equipo</span>
+            <div class="hotspot" id="hs1" onclick="toggleHs(this)" style="margin-left:4px;">
+              <div class="hotspot-tooltip below right">📂 El nombre de la hoja se guarda automáticamente en Drive. Puedes renombrarla haciendo doble clic.</div>
+            </div>
+            <span class="sheets-saved">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 5.5l2.5 2.5 5-5" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Guardado en Drive
+            </span>
+          </div>
+          <div class="sheets-menu">
+            <span>Archivo</span><span>Editar</span><span>Ver</span>
+            <span>Insertar</span><span>Formato</span><span>Datos</span>
+          </div>
+        </div>
+        <div class="sheets-actions">
+          <button class="btn-comment-docs">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 1.5h10v8H7.5l-3 2v-2h-3V1.5z" stroke="#374151" stroke-width="1.2"/></svg>
+            Comentarios
+          </button>
+          <button class="btn-share-docs">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="10" cy="2.5" r="1.5" stroke="#fff" stroke-width="1.2"/><circle cx="2.5" cy="6.5" r="1.5" stroke="#fff" stroke-width="1.2"/><circle cx="10" cy="10.5" r="1.5" stroke="#fff" stroke-width="1.2"/><path d="M4 5.8l4.5-2M4 7.2l4.5 2" stroke="#fff" stroke-width="1.2"/></svg>
+            Compartir
+          </button>
+          <div class="hotspot" id="hs2" onclick="toggleHs(this)">
+            <div class="hotspot-tooltip below left">🔗 Comparte con el equipo eligiendo permisos: solo lectura o edición colaborativa.</div>
+          </div>
+        </div>
+      </div>
+      <!-- Toolbar -->
+      <div class="sheets-toolbar">
+        <div class="tb-group">
+          <button class="tb-btn" title="Deshacer">↩</button>
+          <button class="tb-btn" title="Rehacer">↪</button>
+        </div>
+        <div class="tb-group">
+          <button class="tb-btn" style="font-size:10px;">100%</button>
+        </div>
+        <div class="tb-group">
+          <button class="tb-btn" style="font-family:serif;font-weight:900;">B</button>
+          <button class="tb-btn" style="font-style:italic;font-family:serif;">I</button>
+          <button class="tb-btn" style="text-decoration:underline;font-size:11px;">U</button>
+        </div>
+        <div class="tb-group">
+          <button class="tb-btn" title="Color de relleno" style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            A<div class="color-strip" style="background:var(--sheets-green);"></div>
+          </button>
+          <button class="tb-btn" title="Color de texto" style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            A<div class="color-strip" style="background:var(--gray-800);"></div>
+          </button>
+        </div>
+        <div class="tb-group">
+          <button class="tb-btn">⊞</button>
+          <button class="tb-btn">⊟</button>
+        </div>
+        <div class="tb-group">
+          <button class="tb-btn">≡</button>
+          <button class="tb-btn">⊡</button>
+          <button class="tb-btn">⊞</button>
+        </div>
+        <button class="tb-btn" style="font-size:16px;margin-left:4px;color:var(--gray-500);">∑</button>
+      </div>
+      <!-- Formula bar -->
+      <div class="formula-bar">
+        <div class="cell-ref">D7</div>
+        <div class="formula-fx">fx</div>
+        <div class="formula-input">=PROMEDIO(D2:D6)</div>
+        <div class="hotspot hotspot-abs" id="hs3" onclick="toggleHs(this)" style="position:relative;margin:0 10px;">
+          <div class="hotspot-tooltip below right">🔢 La barra de fórmulas muestra o te permite editar el contenido de la celda activa. Todas las fórmulas empiezan con <strong>=</strong></div>
+        </div>
+      </div>
+      <!-- Grid -->
+      <div class="sheets-grid-wrap">
+        <table class="sheets-grid">
+          <thead>
+            <tr>
+              <th class="row-hdr" style="background:var(--gray-100);"></th>
+              <th>A</th><th class="col-hdr">B</th><th class="col-hdr">C</th>
+              <th class="col-hdr">D</th><th class="col-hdr">E</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="cell-header-row">
+              <td class="cell-center cell-bold" style="background:var(--gray-100);color:var(--gray-500);font-size:11px;border:1px solid var(--gray-200);">1</td>
+              <td class="cell-bold" style="background:var(--sheets-green);color:#fff;">#</td>
+              <td class="cell-bold" style="background:var(--sheets-green);color:#fff;">Herramienta</td>
+              <td class="cell-bold" style="background:var(--sheets-green);color:#fff;">Categoría</td>
+              <td class="cell-bold" style="background:var(--sheets-green);color:#fff;">Calificación</td>
+              <td class="cell-bold" style="background:var(--sheets-green);color:#fff;">¿Gratis?</td>
+            </tr>
+            <tr>
+              <td class="cell-center" style="background:var(--gray-100);color:var(--gray-500);font-size:11px;border:1px solid var(--gray-200);">2</td>
+              <td class="cell-center">1</td><td>Canva</td><td>Diseño</td>
+              <td class="cell-green cell-center cell-bold">9.5</td><td class="cell-center">✓</td>
+            </tr>
+            <tr>
+              <td class="cell-center" style="background:var(--gray-100);color:var(--gray-500);font-size:11px;border:1px solid var(--gray-200);">3</td>
+              <td class="cell-center">2</td><td>Notion</td><td>Organización</td>
+              <td class="cell-green cell-center cell-bold">8.8</td><td class="cell-center">✓</td>
+            </tr>
+            <tr>
+              <td class="cell-center" style="background:var(--gray-100);color:var(--gray-500);font-size:11px;border:1px solid var(--gray-200);">4</td>
+              <td class="cell-center">3</td><td>Duolingo</td><td>Idiomas</td>
+              <td class="cell-green cell-center cell-bold">9.0</td><td class="cell-center">✓</td>
+            </tr>
+            <tr>
+              <td class="cell-center" style="background:var(--gray-100);color:var(--gray-500);font-size:11px;border:1px solid var(--gray-200);">5</td>
+              <td class="cell-center">4</td><td>Google Docs</td><td>Escritura</td>
+              <td class="cell-yellow cell-center cell-bold">7.5</td><td class="cell-center">✓</td>
+            </tr>
+            <tr>
+              <td class="cell-center" style="background:var(--gray-100);color:var(--gray-500);font-size:11px;border:1px solid var(--gray-200);">6</td>
+              <td class="cell-center">5</td><td>Genially</td><td>Presentaciones</td>
+              <td class="cell-green cell-center cell-bold">9.2</td><td class="cell-center">✓</td>
+            </tr>
+            <tr>
+              <td class="cell-center" style="background:var(--gray-100);color:var(--gray-500);font-size:11px;border:1px solid var(--gray-200);">7</td>
+              <td colspan="3" class="cell-bold" style="text-align:right;color:var(--gray-700);">PROMEDIO DEL EQUIPO →</td>
+              <td class="cell-active cell-center">9.0</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Sheet tabs -->
+      <div class="sheets-tabs">
+        <div class="sheets-tab active">📊 Inventario</div>
+        <div class="sheets-tab">📈 Gráficos</div>
+        <div class="sheets-tab">📋 Resumen</div>
+        <div class="sheets-tab-add">+</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COLABORACIÓN ===== -->
+<section id="colaboracion">
+  <div class="container">
+    <div class="colab-grid">
+      <div class="colab-text fade-up">
+        <h2>Datos en Equipo</h2>
+        <p>En Google Sheets, varios estudiantes pueden editar la misma hoja al mismo tiempo. Cada quien ve el cursor del otro en tiempo real, las celdas se resaltan con su color y los cambios aparecen al instante.</p>
+        <ul class="cursors-list">
+          <li class="cursor-item">
+            <span class="cursor-dot" style="background:#EC4899;"></span>
+            María — ingresando calificaciones
+          </li>
+          <li class="cursor-item">
+            <span class="cursor-dot" style="background:#3B82F6;"></span>
+            Carlos — aplicando fórmulas
+          </li>
+          <li class="cursor-item">
+            <span class="cursor-dot" style="background:#0F9D58;"></span>
+            Ana — diseñando el formato
+          </li>
+        </ul>
+      </div>
+      <div style="position:relative;" class="fade-up">
+        <div class="colab-sheet">
+          <div class="colab-sheet-header">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1.5" fill="#0F9D58"/><path d="M1 5h12M1 9h12M5 1v12" stroke="#fff" stroke-width="1"/></svg>
+            Inventario Digital del Equipo
+          </div>
+          <table class="colab-grid-tbl">
+            <thead>
+              <tr>
+                <th style="width:28px;"></th>
+                <th>A</th><th style="min-width:100px;">B</th>
+                <th style="min-width:90px;">C</th><th style="min-width:80px;">D</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;">1</td>
+                <td style="background:var(--sheets-green);color:#fff;font-weight:700;">#</td>
+                <td style="background:var(--sheets-green);color:#fff;font-weight:700;">Herramienta</td>
+                <td style="background:var(--sheets-green);color:#fff;font-weight:700;">Categoría</td>
+                <td style="background:var(--sheets-green);color:#fff;font-weight:700;">Nota</td>
+              </tr>
+              <tr>
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;">2</td>
+                <td>1</td><td class="cell-sel-pink" style="position:relative;">Canva<span class="cell-cursor" style="background:#EC4899;">María</span></td>
+                <td>Diseño</td><td class="cell-sel-pink cell-right">9.5</td>
+              </tr>
+              <tr>
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;">3</td>
+                <td>2</td><td>Notion</td>
+                <td class="cell-sel-green2" style="position:relative;">Organización<span class="cell-cursor" style="background:#0F9D58;">Ana</span></td>
+                <td class="cell-sel-blue cell-right" style="position:relative;">8.8<span class="cell-cursor" style="background:#3B82F6;">Carlos</span></td>
+              </tr>
+              <tr>
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;">4</td>
+                <td>3</td><td>Duolingo</td><td>Idiomas</td><td class="cell-right">9.0</td>
+              </tr>
+              <tr>
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;">5</td>
+                <td colspan="3" style="text-align:right;font-weight:700;color:var(--gray-600);font-size:11px;">PROMEDIO →</td>
+                <td class="cell-formula cell-right">=PROM...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Comment bubble -->
+        <div class="colab-comment">
+          <div class="cc-header">
+            <div class="cc-avatar">C</div>
+            <span class="cc-author">Carlos</span>
+            <span class="cc-time">11:15 AM</span>
+          </div>
+          <p class="cc-text">¿Usamos PROMEDIO() o PROMEDIO.SI() para ignorar los vacíos?</p>
+          <div class="cc-actions">
+            <button class="cc-btn">Responder</button>
+            <button class="cc-btn resolve">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 5.5l2.5 2.5 5-5" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Resolver
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HERRAMIENTAS ===== -->
+<section id="herramientas">
+  <div class="container">
+    <div class="section-header fade-up">
+      <h2>Caja de Herramientas</h2>
+      <p>Domina estas cuatro áreas y tus hojas pasarán de ser tablas simples a poderosos analizadores de datos.</p>
+    </div>
+    <div class="tabs-nav fade-up">
+      <button class="tab-btn active">Fórmulas</button>
+      <button class="tab-btn">Gráficos</button>
+      <button class="tab-btn">Formato</button>
+      <button class="tab-btn">Datos</button>
+    </div>
+
+    <!-- Tab 1: Fórmulas -->
+    <div class="tab-content active" id="tab-formulas">
+      <div class="tool-card">
+        <div class="tool-card-title"><span class="ico">ƒ</span> Fórmulas Esenciales</div>
+        <p>Las fórmulas son instrucciones que le das a Sheets para que calcule automáticamente. Siempre empiezan con <code style="background:var(--gray-100);padding:1px 5px;border-radius:4px;font-size:12px;">=</code> y trabajan con rangos de celdas.</p>
+        <ul class="checklist">
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>=SUMA(A1:A10)</strong> — Suma todos los valores del rango</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>=PROMEDIO(A1:A10)</strong> — Calcula el promedio del rango</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>=SI(condición, "sí", "no")</strong> — Decisión automática</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>=CONTAR.SI(rango, criterio)</strong> — Cuenta con condición</li>
+        </ul>
+      </div>
+      <div class="formula-preview">
+        <p style="font-size:.85rem;color:var(--gray-600);margin-bottom:6px;">Ejemplos en acción:</p>
+        <div class="formula-chip"><span class="fn">=SUMA</span>(<span class="arg">D2:D10</span>) <div class="res">→ Suma todas las notas del rango D2 a D10</div></div>
+        <div class="formula-chip"><span class="fn">=PROMEDIO</span>(<span class="arg">D2:D10</span>) <div class="res">→ Calcula el promedio de calificaciones</div></div>
+        <div class="formula-chip"><span class="fn">=SI</span>(<span class="arg">D2&gt;=9</span>, <span style="color:var(--sheets-green);">"Excelente"</span>, <span style="color:var(--yellow);">"Regular"</span>) <div class="res">→ Categoriza automáticamente la nota</div></div>
+        <div class="formula-chip"><span class="fn">=CONTAR.SI</span>(<span class="arg">C2:C10</span>, <span style="color:var(--pink);">"Diseño"</span>) <div class="res">→ Cuenta cuántas herramientas son de Diseño</div></div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Gráficos -->
+    <div class="tab-content" id="tab-graficos">
+      <div class="tool-card">
+        <div class="tool-card-title"><span class="ico">📊</span> Crear Gráficos</div>
+        <p>Selecciona los datos, ve a <strong>Insertar → Gráfico</strong> y Sheets sugiere automáticamente el tipo más adecuado. Puedes personalizarlo desde el Editor de gráficos.</p>
+        <ul class="checklist">
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Selecciona el rango de datos primero (incluyendo encabezados)</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Insertar → Gráfico para abrir el editor</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Cambia colores y títulos en la pestaña "Personalizar"</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>El gráfico se actualiza automáticamente al cambiar los datos</li>
+        </ul>
+        <div class="chart-types" style="margin-top:16px;">
+          <div class="chart-type"><div class="chart-icon">📊</div><div class="chart-name">Barras</div></div>
+          <div class="chart-type"><div class="chart-icon">📈</div><div class="chart-name">Líneas</div></div>
+          <div class="chart-type"><div class="chart-icon">🥧</div><div class="chart-name">Circular</div></div>
+          <div class="chart-type"><div class="chart-icon">📉</div><div class="chart-name">Área</div></div>
+          <div class="chart-type"><div class="chart-icon">⚡</div><div class="chart-name">Dispersión</div></div>
+          <div class="chart-type"><div class="chart-icon">🗂️</div><div class="chart-name">Columnas</div></div>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-card-title"><span class="ico">📈</span> Vista Previa: Gráfico de Barras</div>
+        <p style="margin-bottom:4px;">Calificaciones del Inventario Digital del Equipo:</p>
+        <div class="mini-chart" id="miniChart">
+          <div class="bar-wrap"><div class="bar" style="height:76px;background:var(--sheets-green);border-radius:4px 4px 0 0;"></div><div class="bar-label">Canva</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:70px;background:var(--blue);border-radius:4px 4px 0 0;"></div><div class="bar-label">Notion</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:72px;background:var(--purple);border-radius:4px 4px 0 0;"></div><div class="bar-label">Duolingo</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:60px;background:var(--yellow);border-radius:4px 4px 0 0;"></div><div class="bar-label">G. Docs</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:74px;background:var(--pink);border-radius:4px 4px 0 0;"></div><div class="bar-label">Genially</div></div>
+        </div>
+        <p style="font-size:11px;color:var(--gray-400);margin-top:8px;text-align:center;">Escala: 0–10 · Eje X: Herramientas</p>
+      </div>
+    </div>
+
+    <!-- Tab 3: Formato -->
+    <div class="tab-content" id="tab-formato">
+      <div class="tool-card">
+        <div class="tool-card-title"><span class="ico">🎨</span> Formato Condicional</div>
+        <p>El formato condicional colorea celdas automáticamente según reglas. Ve a <strong>Formato → Formato condicional</strong> y define cuándo una celda debe cambiar de color.</p>
+        <ul class="checklist">
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Selecciona el rango de celdas a formatear</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Define la condición (mayor que, menor que, igual a...)</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Elige el color de relleno o de texto</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Agrega múltiples reglas para crear semáforos de datos</li>
+        </ul>
+        <div class="formato-examples" style="margin-top:4px;">
+          <div class="formato-row"><div class="formato-swatch" style="background:#ECFDF5;border:1.5px solid var(--sheets-green);"></div><span style="font-size:12px;"><strong>Verde</strong> → Nota ≥ 9.0 (Excelente)</span></div>
+          <div class="formato-row"><div class="formato-swatch" style="background:#FEF9C3;border:1.5px solid var(--yellow);"></div><span style="font-size:12px;"><strong>Amarillo</strong> → Nota entre 7.0 y 8.9</span></div>
+          <div class="formato-row"><div class="formato-swatch" style="background:#FEF2F2;border:1.5px solid var(--red);"></div><span style="font-size:12px;"><strong>Rojo</strong> → Nota &lt; 7.0 (Revisar)</span></div>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-card-title"><span class="ico">🔒</span> Filas y Columnas Fijas</div>
+        <p>Congela encabezados para que sean siempre visibles al hacer scroll en hojas largas.</p>
+        <ul class="checklist" style="margin-bottom:16px;">
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Ver → Inmovilizar → 1 fila</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Ver → Inmovilizar → 1 columna</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>La línea azul indica qué está fijo</li>
+        </ul>
+        <div style="border:1.5px solid var(--gray-200);border-radius:8px;overflow:hidden;font-size:11.5px;">
+          <div style="background:var(--sheets-green);color:#fff;padding:6px 10px;font-weight:700;position:relative;">
+            Herramienta · Categoría · Nota
+            <div style="position:absolute;right:0;top:0;bottom:0;width:3px;background:rgba(0,0,0,.2);"></div>
+          </div>
+          <div style="padding:6px 10px;color:var(--gray-600);">↕ El encabezado verde queda fijo al hacer scroll...</div>
+          <div style="padding:6px 10px;color:var(--gray-400);font-size:10.5px;">Canva · Diseño · 9.5</div>
+          <div style="padding:6px 10px;color:var(--gray-400);font-size:10.5px;">Notion · Organización · 8.8</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Datos -->
+    <div class="tab-content" id="tab-datos">
+      <div class="tool-card">
+        <div class="tool-card-title"><span class="ico">🗂️</span> Gestión de Datos</div>
+        <p>Sheets incluye herramientas potentes para organizar, filtrar y validar tus datos sin escribir una sola fórmula.</p>
+        <div class="datos-grid">
+          <div class="datos-card">
+            <div class="datos-card-icon">🔽</div>
+            <div class="datos-card-name">Ordenar</div>
+            <div class="datos-card-desc">Datos → Ordenar hoja. Ordena por cualquier columna A→Z o Z→A</div>
+          </div>
+          <div class="datos-card">
+            <div class="datos-card-icon">🔍</div>
+            <div class="datos-card-name">Filtros</div>
+            <div class="datos-card-desc">Datos → Crear un filtro. Muestra solo las filas que necesitas</div>
+          </div>
+          <div class="datos-card">
+            <div class="datos-card-icon">✅</div>
+            <div class="datos-card-name">Validación</div>
+            <div class="datos-card-desc">Datos → Validación de datos. Evita errores de ingreso con listas desplegables</div>
+          </div>
+          <div class="datos-card">
+            <div class="datos-card-icon">🔗</div>
+            <div class="datos-card-name">Tablas dinámicas</div>
+            <div class="datos-card-desc">Insertar → Tabla dinámica. Resúmenes automáticos de grandes volúmenes de datos</div>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-card-title"><span class="ico">⌨️</span> Atajos Esenciales</div>
+        <p>Trabaja 3 veces más rápido usando estos atajos de teclado en Sheets:</p>
+        <ul class="checklist">
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>Ctrl+Shift+V</strong> — Pegar solo valores (sin fórmulas)</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>Ctrl+Shift+L</strong> — Activar/desactivar filtros</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>Ctrl+D</strong> — Copiar fórmula hacia abajo</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>Alt+Enter</strong> — Nueva línea dentro de una celda</li>
+          <li><span class="check-icon"><svg viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>Ctrl+Alt+M</strong> — Insertar comentario en celda</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ACTIVIDAD ===== -->
+<section id="actividad">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="badge-actividad">ACTIVIDAD PRINCIPAL</div>
+      <h2>El Inventario Digital</h2>
+      <p>Trabajen en equipo para crear, organizar y analizar un inventario completo de las 10 herramientas digitales que investigaron en la Sesión 3.</p>
+    </div>
+    <div class="actividad-grid fade-up">
+      <div>
+        <h3 class="steps-title">Instrucciones Paso a Paso</h3>
+        <div class="steps-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">Crear una nueva hoja en Google Sheets y nombrarla "Inventario Digital – [Nombre del equipo]".</div>
+            <span class="step-arrow">›</span>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">Definir las columnas: Nº, Herramienta, Categoría, Uso Principal, ¿Gratis?, Calificación (1–10).</div>
+            <span class="step-arrow">›</span>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">Completar las 10 herramientas con sus datos. Usar =PROMEDIO() para calcular la nota promedio del equipo.</div>
+            <span class="step-arrow">›</span>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text">Aplicar formato condicional: verde ≥ 9, amarillo 7–8.9, rojo &lt; 7. Congelar la fila de encabezados.</div>
+            <span class="step-arrow">›</span>
+          </div>
+          <div class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-text">Crear un gráfico de barras con las calificaciones y compartir el enlace final con el profesor.</div>
+            <span class="step-arrow">›</span>
+          </div>
+        </div>
+      </div>
+      <!-- Preview -->
+      <div>
+        <div class="result-title">
+          <span class="check">✅</span> Así debería verse tu resultado
+        </div>
+        <div class="doc-preview">
+          <div class="doc-preview-bar">
+            <div class="browser-dots"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div></div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="preview-grid">
+              <thead>
+                <tr><th>#</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th></tr>
+              </thead>
+              <tbody>
+                <tr class="header-row">
+                  <td>1</td><td>Nº</td><td>Herramienta</td><td>Categoría</td><td>Uso Principal</td><td>¿Gratis?</td><td>Nota</td>
+                </tr>
+                <tr><td style="background:var(--gray-50);">2</td><td>1</td><td>Canva</td><td>Diseño</td><td>Presentaciones</td><td style="text-align:center;">✓</td><td style="background:#ECFDF5;color:#166534;font-weight:700;text-align:center;">9.5</td></tr>
+                <tr><td style="background:var(--gray-50);">3</td><td>2</td><td>Notion</td><td>Organización</td><td>Gestión de tareas</td><td style="text-align:center;">✓</td><td style="background:#FEF9C3;color:#854D0E;font-weight:700;text-align:center;">8.8</td></tr>
+                <tr><td style="background:var(--gray-50);">4</td><td>3</td><td>Duolingo</td><td>Idiomas</td><td>Aprendizaje inglés</td><td style="text-align:center;">✓</td><td style="background:#ECFDF5;color:#166534;font-weight:700;text-align:center;">9.0</td></tr>
+                <tr><td style="background:var(--gray-50);">5</td><td>4</td><td>Google Docs</td><td>Escritura</td><td>Redacción col.</td><td style="text-align:center;">✓</td><td style="background:#FEF9C3;color:#854D0E;font-weight:700;text-align:center;">8.5</td></tr>
+                <tr class="total-row">
+                  <td style="background:var(--gray-50);"></td>
+                  <td colspan="5" style="text-align:right;font-size:11px;color:var(--gray-600);">PROMEDIO DEL EQUIPO →</td>
+                  <td class="formula-cell" style="text-align:center;">=PROM()</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RETO ===== -->
+<section id="reto">
+  <div class="container">
+    <div class="section-header fade-up">
+      <h2>Reto Final: Eleva tu Hoja</h2>
+      <p>¿Terminaron antes de tiempo? Acepten un reto adicional para obtener puntos extra.</p>
+    </div>
+    <div class="reto-grid fade-up">
+      <div class="reto-card">
+        <div class="reto-icon green">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="#0F9D58" stroke-width="2"/>
+            <path d="M3 8h18M8 3v18" stroke="#0F9D58" stroke-width="2"/>
+            <path d="M12 13l2 2 4-4" stroke="#0F9D58" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="reto-level green">NIVEL 1</div>
+        <h3>Básico</h3>
+        <p>Agrega una columna "Estado" que use <strong>=SI()</strong> para mostrar automáticamente "Excelente", "Bueno" o "Revisar" según la calificación de cada herramienta.</p>
+        <button class="btn-reto green" onclick="acceptReto(this)">Acepto el Reto</button>
+      </div>
+      <div class="reto-card">
+        <div class="reto-icon purple">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="#7C3AED" stroke-width="2"/>
+            <path d="M7 17l3-5 3 3 2-4 3 6" stroke="#7C3AED" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="reto-level purple">NIVEL 2</div>
+        <h3>Intermedio</h3>
+        <p>Crea una segunda hoja llamada "Gráficos" con un gráfico de barras comparando las calificaciones y un gráfico circular mostrando la distribución por categoría.</p>
+        <button class="btn-reto purple" onclick="acceptReto(this)">Acepto el Reto</button>
+      </div>
+      <div class="reto-card">
+        <div class="reto-icon blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="#3B82F6" stroke-width="2"/>
+            <path d="M8 12h8M12 8v8" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="reto-level blue">NIVEL 3</div>
+        <h3>Avanzado</h3>
+        <p>Añade una hoja "Resumen" con una tabla dinámica que muestre el promedio de calificaciones agrupado por categoría, usando PROMEDIO.SI() para cada grupo.</p>
+        <button class="btn-reto blue" onclick="acceptReto(this)">Acepto el Reto</button>
+      </div>
+    </div>
+    <div class="felicidades fade-up">
+      <h3>¡Felicidades, analistas de datos!</h3>
+      <p>Han completado la sesión 5. Han demostrado que los datos no son solo números: son historias esperando ser contadas con las herramientas correctas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RESULTADO FINAL ===== -->
+<section id="resultado">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="badge-resultado">EJEMPLO DE RESULTADO FINAL</div>
+      <h2>Así queda el Inventario con los 3 Retos Aplicados</h2>
+      <p>Este es el nivel de calidad al que deben apuntar. Cada reto enriquece la hoja con análisis más potentes y visualizaciones profesionales.</p>
+    </div>
+    <div class="resultado-doc fade-up">
+      <div class="resultado-bar">
+        <div class="browser-dots"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div></div>
+        <div class="browser-url" style="font-size:11px;">docs.google.com/spreadsheets/d/inventario-digital-creadores</div>
+      </div>
+      <div class="resultado-menubar">
+        <span>Archivo</span><span>Editar</span><span>Ver</span>
+        <span>Insertar</span><span>Formato</span><span>Datos</span>
+        <span class="badge-cond">Formato Condicional Activo</span>
+        <div class="editores">
+          <div class="editor-avatar" style="background:#EC4899;margin-left:0;">M</div>
+          <div class="editor-avatar" style="background:#3B82F6;">C</div>
+          <div class="editor-avatar" style="background:#0F9D58;">A</div>
+          <span class="editores-text">3 editores activos</span>
+        </div>
+      </div>
+      <!-- Main result grid + charts -->
+      <div style="position:relative;">
+        <div class="resultado-body">
+          <table class="resultado-grid-tbl">
+            <thead>
+              <tr>
+                <th style="width:32px;background:var(--gray-100);"></th>
+                <th>A</th><th style="min-width:100px;">B</th><th style="min-width:100px;">C</th>
+                <th style="min-width:130px;">D</th><th style="min-width:70px;">E</th>
+                <th style="min-width:65px;">F</th><th style="min-width:110px;">G</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="rg-header">
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;border:1px solid var(--gray-200);">1</td>
+                <td>Nº</td><td>Herramienta</td><td>Categoría</td>
+                <td>Uso Principal</td><td>¿Gratis?</td><td>Nota</td><td>Estado</td>
+              </tr>
+              <tr class="rg-green">
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;border:1px solid var(--gray-200);">2</td>
+                <td>1</td><td>Canva</td><td>Diseño</td><td>Presentaciones visuales</td>
+                <td style="text-align:center;">✓</td><td class="nota-cell" style="text-align:center;">9.5</td>
+                <td style="color:var(--sheets-green);font-weight:700;font-size:11px;font-style:italic;">=SI(F2≥9,"Excelente"...)</td>
+              </tr>
+              <tr class="rg-green">
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;border:1px solid var(--gray-200);">3</td>
+                <td>2</td><td>Notion</td><td>Organización</td><td>Gestión de proyectos</td>
+                <td style="text-align:center;">✓</td><td class="nota-cell" style="text-align:center;">9.1</td>
+                <td style="color:var(--sheets-green);font-size:11px;">Excelente</td>
+              </tr>
+              <tr class="rg-green">
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;border:1px solid var(--gray-200);">4</td>
+                <td>3</td><td>Duolingo</td><td>Idiomas</td><td>Aprendizaje de inglés</td>
+                <td style="text-align:center;">✓</td><td class="nota-cell" style="text-align:center;">9.0</td>
+                <td style="color:var(--sheets-green);font-size:11px;">Excelente</td>
+              </tr>
+              <tr class="rg-yellow">
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;border:1px solid var(--gray-200);">5</td>
+                <td>4</td><td>Google Docs</td><td>Escritura</td><td>Redacción colaborativa</td>
+                <td style="text-align:center;">✓</td><td class="nota-cell" style="text-align:center;">8.5</td>
+                <td style="color:var(--yellow);font-size:11px;">Bueno</td>
+              </tr>
+              <tr class="rg-green">
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;border:1px solid var(--gray-200);">6</td>
+                <td>5</td><td>Genially</td><td>Presentaciones</td><td>Contenido interactivo</td>
+                <td style="text-align:center;">✓</td><td class="nota-cell" style="text-align:center;">9.2</td>
+                <td style="color:var(--sheets-green);font-size:11px;">Excelente</td>
+              </tr>
+              <tr class="rg-yellow">
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;border:1px solid var(--gray-200);">7</td>
+                <td>6</td><td>Quizlet</td><td>Estudio</td><td>Flashcards y repaso</td>
+                <td style="text-align:center;">✓</td><td class="nota-cell" style="text-align:center;">8.0</td>
+                <td style="color:var(--yellow);font-size:11px;">Bueno</td>
+              </tr>
+              <tr class="rg-total">
+                <td style="background:var(--gray-100);color:var(--gray-400);font-size:10px;text-align:center;border:1px solid var(--gray-200);">8</td>
+                <td colspan="5" style="text-align:right;color:var(--gray-600);font-size:11.5px;padding-right:14px;">PROMEDIO DEL EQUIPO →</td>
+                <td class="formula-col" style="text-align:center;">=PROM(F2:F7)</td>
+                <td style="font-size:11.5px;color:var(--sheets-green);font-weight:700;">9.05 / 10</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Suggestion bubble -->
+        <div class="suggestion-bubble">
+          <div class="sb-header">
+            <div class="sb-avatar">A</div>
+            <span class="sb-name">Ana sugiere</span>
+          </div>
+          <p class="sb-text">Agregar Google Maps como herramienta extra de geografía</p>
+          <div class="sb-actions">
+            <button class="sb-btn-accept" onclick="this.closest('.suggestion-bubble').style.display='none'">Aceptar</button>
+            <button class="sb-btn-reject" onclick="this.closest('.suggestion-bubble').style.display='none'">Rechazar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart section -->
+      <div class="chart-section">
+        <div class="chart-title">📊 Reto 2 — Gráfico de Calificaciones (Hoja: Gráficos)</div>
+        <div style="display:flex;align-items:flex-end;gap:10px;height:90px;padding:0 8px 0 0;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;"><div style="height:85px;width:100%;background:var(--sheets-green);border-radius:4px 4px 0 0;"></div><span style="font-size:9.5px;color:var(--gray-500);">Canva</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;"><div style="height:81px;width:100%;background:var(--blue);border-radius:4px 4px 0 0;"></div><span style="font-size:9.5px;color:var(--gray-500);">Notion</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;"><div style="height:80px;width:100%;background:var(--purple);border-radius:4px 4px 0 0;"></div><span style="font-size:9.5px;color:var(--gray-500);">Duolingo</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;"><div style="height:75px;width:100%;background:var(--yellow);border-radius:4px 4px 0 0;"></div><span style="font-size:9.5px;color:var(--gray-500);">G.Docs</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;"><div style="height:83px;width:100%;background:var(--pink);border-radius:4px 4px 0 0;"></div><span style="font-size:9.5px;color:var(--gray-500);">Genially</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;"><div style="height:71px;width:100%;background:#F97316;border-radius:4px 4px 0 0;"></div><span style="font-size:9.5px;color:var(--gray-500);">Quizlet</span></div>
+        </div>
+      </div>
+
+      <!-- Reto boxes -->
+      <div class="reto-box green">
+        <div class="reto-box-title">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="10" height="10" rx="1.5" stroke="#0F9D58" stroke-width="1.2"/><path d="M1 5h10M5 1v10" stroke="#0F9D58" stroke-width=".8"/></svg>
+          RETO 1 — COLUMNA ESTADO CON =SI()
+        </div>
+        <p style="font-size:12px;color:var(--gray-700);">Fórmula aplicada en G2: <code style="background:#fff;padding:2px 6px;border-radius:4px;border:1px solid var(--gray-200);font-size:11.5px;">=SI(F2&gt;=9,"Excelente",SI(F2&gt;=7,"Bueno","Revisar"))</code></p>
+      </div>
+
+      <div class="reto-box blue" style="margin-top:10px;">
+        <div class="reto-box-title">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#3B82F6" stroke-width="1.2"/><path d="M6 3.5v2.5l1.5 1.5" stroke="#3B82F6" stroke-width="1.2" stroke-linecap="round"/></svg>
+          RETO 3 — RESUMEN POR CATEGORÍA CON PROMEDIO.SI()
+        </div>
+        <div class="version-list">
+          <div class="version-item"><span class="version-time">Diseño</span><span>PROMEDIO.SI(C2:C7,"Diseño",F2:F7) = <strong style="color:var(--sheets-green);">9.5</strong></span></div>
+          <div class="version-item"><span class="version-time">Organización</span><span>PROMEDIO.SI(C2:C7,"Organización",F2:F7) = <strong style="color:var(--sheets-green);">9.1</strong></span></div>
+          <div class="version-item"><span class="version-time">Escritura</span><span>PROMEDIO.SI(C2:C7,"Escritura",F2:F7) = <strong style="color:var(--yellow);">8.5</strong></span></div>
+          <div class="version-item"><span class="version-time">Idiomas</span><span>PROMEDIO.SI(C2:C7,"Idiomas",F2:F7) = <strong style="color:var(--sheets-green);">9.0</strong></span></div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend-bar">
+        <div class="legend-item"><div class="legend-dot" style="background:#ECFDF5;border:1.5px solid var(--sheets-green);"></div>Reto 1 – Columna =SI()</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#EFF6FF;border:1.5px solid var(--blue);"></div>Reto 2 – Gráfico de barras</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#F5F3FF;border:1.5px solid var(--purple);"></div>Reto 3 – PROMEDIO.SI()</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <p>SENA TICs · Sesión 5 · Media Técnica en Integración de Contenidos Digitales</p>
+</footer>
+
+<script>
+// ===== SCROLL HELPERS =====
+function scrollTo(sel) {
+  const el = document.querySelector(sel);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===== HAMBURGER =====
+const hamburger = document.getElementById('hamburger');
+const navLinks  = document.getElementById('navLinks');
+hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
+document.querySelectorAll('.navbar-links a').forEach(a => {
+  a.addEventListener('click', () => navLinks.classList.remove('open'));
+});
+
+// ===== TABS =====
+const TAB_IDS = ['formulas','graficos','formato','datos'];
+document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    const tabEl = document.getElementById('tab-' + TAB_IDS[i]);
+    if (tabEl) tabEl.classList.add('active');
+  });
+});
+
+// ===== HOTSPOTS =====
+function toggleHs(el) {
+  const wasActive = el.classList.contains('active');
+  document.querySelectorAll('.hotspot').forEach(h => h.classList.remove('active'));
+  if (!wasActive) el.classList.add('active');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.hotspot'))
+    document.querySelectorAll('.hotspot').forEach(h => h.classList.remove('active'));
+});
+
+// ===== SHEET TABS (demo interaction) =====
+document.querySelectorAll('.sheets-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.sheets-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ===== RETO BUTTONS =====
+function acceptReto(btn) {
+  if (btn.classList.contains('accepted')) return;
+  btn.classList.add('accepted');
+  btn.textContent = '✓ ¡Reto Aceptado!';
+  btn.style.opacity = '.85';
+  btn.closest('.reto-card').style.transition = 'transform .3s';
+  btn.closest('.reto-card').style.transform = 'scale(1.03)';
+  setTimeout(() => btn.closest('.reto-card').style.transform = '', 300);
+}
+
+// ===== SCROLL ANIMATIONS =====
+const fadeEls  = document.querySelectorAll('.fade-up');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+fadeEls.forEach(el => observer.observe(el));
+
+// ===== NAVBAR SHADOW =====
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').style.boxShadow =
+    window.scrollY > 10 ? '0 2px 20px rgba(0,0,0,.1)' : 'none';
+});
+
+// ===== ACTIVE NAV LINK =====
+const sections   = document.querySelectorAll('section[id]');
+const navAnchors = document.querySelectorAll('.navbar-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 90) current = s.id; });
+  navAnchors.forEach(a => {
+    const match = a.getAttribute('href') === '#' + current;
+    a.style.color      = match ? '#111827' : '';
+    a.style.fontWeight = match ? '700' : '';
+  });
+});
+
+// ===== BAR CHART ANIMATION =====
+const bars = document.querySelectorAll('#miniChart .bar');
+const barObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const heights = ['76px','70px','72px','60px','74px'];
+      bars.forEach((b, i) => {
+        b.style.height = '0';
+        setTimeout(() => b.style.height = heights[i], i * 80);
+      });
+      barObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+if (bars.length) barObserver.observe(bars[0].closest('.mini-chart'));
+</script>
+</body>
+</html>
